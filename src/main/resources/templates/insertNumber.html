@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>Fibonacci sequence</title>
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="jumbotron">
+        <form action="#" th:action="@{/countNumbers}" th:object="${fibonacciSettings}" method="post">
+            <div>
+                <h4>Calculate nth value fot Fibonacci sequence</h4>
+                <label>Number: </label>
+                <input type="number" th:field="*{number}"/>
+                <span th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></span>
+            </div>
+            <div>
+                <ul>
+                    <li th:each="ty : ${allTypes}">
+                        <input type="radio" th:field="*{calculationType}" th:value="${ty}"/>
+                        <label th:text="${ty}"></label>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <input type="submit" name="calculate" value="Calculate" class="btn btn-primary"/>
+                <input type="submit" name="compare" value="Compare" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+    </form>
+</div>
+</body>
+</html>

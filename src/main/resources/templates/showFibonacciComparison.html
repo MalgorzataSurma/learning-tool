@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>Fibonacci sequence</title>
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="jumbotron">
+        <h4 th:text="'Calculated ' + ${fibonacciSettings.number} + 'th number of Fibonacci sequence.'"></h4>
+        <h4 th:if="${fibonacciSettings.calculationType != null}" th:text="'Method: '+ ${fibonacciSettings.calculationType}"></h4>
+
+        <p th:text="'Fibonacci Number: ' + ${fibonacciSettings.fibonacciValue}"/>
+
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Duration</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">Plain</th>
+                <td><p th:text="${durationPlain}"/></td>
+            </tr>
+            <tr>
+                <th scope="row">Recursion</th>
+                <td><p th:text="${durationRecursion}"/></td>
+            </tr>
+            </tbody>
+        </table>
+        <p>
+            <a class="btn btn-lg btn-primary" href="insertNumber" role="button">Back &raquo;</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>
