@@ -27,6 +27,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
@@ -40,10 +41,14 @@ public class TradeMappingDao {
 
     private final Logger logger = LoggerFactory.getLogger(TradeMappingDao.class);
 
-    private final String INDEX = "trade-mapping";
-    private final String TYPE = "trade-mapping";
+    @Value("${elasticsearch.index}")
+    private String index;
 
-    private final String REINDEX = "trade-mapping-archive";
+    @Value("${elasticsearch.type}")
+    private String type;
+
+    @Value("${elasticsearch.index.archive}")
+    private String archive;
 
     private RestHighLevelClient restHighLevelClient;
 
@@ -58,7 +63,7 @@ public class TradeMappingDao {
 
         tradeMapping.setId(tradeMapping.getSystem()+tradeMapping.getTid()+UUID.randomUUID().toString());
         Map<String, Object> dataMap = objectMapper.convertValue(tradeMapping, Map.class);
-        IndexRequest indexRequest = new IndexRequest(INDEX, TYPE, tradeMapping.getId())
+        IndexRequest indexRequest = new IndexRequest(index, type, tradeMapping.getId())
                 .source(dataMap);
         try {
             IndexResponse response = restHighLevelClient.index(indexRequest);
@@ -73,7 +78,7 @@ public class TradeMappingDao {
 
 
     public Map<String, Object> getTradeMappingById(String id){
-        GetRequest getRequest = new GetRequest(INDEX, TYPE, id);
+        GetRequest getRequest = new GetRequest(index, type, id);
         GetResponse getResponse = null;
         try {
             getResponse = restHighLevelClient.get(getRequest);
@@ -89,8 +94,8 @@ public class TradeMappingDao {
 
         SearchResponse searchResponse=null;
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices(INDEX);
-        searchRequest.types(TYPE);
+        searchRequest.indices(index);
+        searchRequest.types(type);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must(QueryBuilders.matchQuery("system", system)).must(QueryBuilders.matchQuery("tid", tid));
@@ -112,8 +117,8 @@ public class TradeMappingDao {
 
         SearchResponse searchResponse=null;
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices(INDEX);
-        searchRequest.types(TYPE);
+        searchRequest.indices(index);
+        searchRequest.types(type);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.mustNot(QueryBuilders.existsQuery("metaInfo.validUntil")).mustNot(QueryBuilders.existsQuery("metaInfo.systemUntil"));
@@ -141,8 +146,8 @@ public class TradeMappingDao {
 
         SearchResponse searchResponse=null;
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices(INDEX);
-        searchRequest.types(TYPE);
+        searchRequest.indices(index);
+        searchRequest.types(type);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         systemTid.forEach((system,tid)->{
@@ -165,7 +170,7 @@ public class TradeMappingDao {
     }
 
     public Map<String, Object> updateTradeMappingById(String id, TradeMapping TradeMapping){
-        UpdateRequest updateRequest = new UpdateRequest(INDEX, TYPE, id)
+        UpdateRequest updateRequest = new UpdateRequest(index, type, id)
                 .fetchSource(true);    // Fetch Object after its update
         Map<String, Object> error = new HashMap<>();
         error.put("Error", "Unable to update TradeMapping");
@@ -185,7 +190,7 @@ public class TradeMappingDao {
     }
 
     public void deleteTradeMappingById(String id) {
-        DeleteRequest deleteRequest = new DeleteRequest(INDEX, TYPE, id);
+        DeleteRequest deleteRequest = new DeleteRequest(index, type, id);
         try {
             DeleteResponse deleteResponse = restHighLevelClient.delete(deleteRequest);
         } catch (java.io.IOException e){
@@ -211,8 +216,8 @@ public class TradeMappingDao {
 
         ReindexRequest reindexRequest = new ReindexRequest();
         reindexRequest.setSourceQuery(boolQueryBuilder);
-        reindexRequest.setSourceIndices(INDEX);
-        reindexRequest.setDestIndex(REINDEX);
+        reindexRequest.setSourceIndices(index);
+        reindexRequest.setDestIndex(archive);
         reindexRequest.setRefresh(true);
 
         try {
@@ -229,8 +234,8 @@ public class TradeMappingDao {
 
         ReindexRequest reindexRequest = new ReindexRequest();
         reindexRequest.setSourceQuery(query);
-        reindexRequest.setSourceIndices(INDEX);
-        reindexRequest.setDestIndex(REINDEX);
+        reindexRequest.setSourceIndices(index);
+        reindexRequest.setDestIndex(archive);
         reindexRequest.setRefresh(true);
 
         try {

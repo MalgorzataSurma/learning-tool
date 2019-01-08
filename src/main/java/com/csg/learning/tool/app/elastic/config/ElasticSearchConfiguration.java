@@ -13,21 +13,14 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import java.util.Base64;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "com/csg/learning/tool/app/elastic/repositories")
 public class ElasticSearchConfiguration extends AbstractFactoryBean<RestHighLevelClient> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchConfiguration.class);
