@@ -1,7 +1,6 @@
 package com.csg.learning.tool.app.elastic.dao;
 
 import com.csg.learning.tool.app.elastic.model.TradeMapping;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -66,7 +65,7 @@ public class TradeMappingDao {
         IndexRequest indexRequest = new IndexRequest(index, type, tradeMapping.getId())
                 .source(dataMap);
         try {
-            IndexResponse response = restHighLevelClient.index(indexRequest);
+            IndexResponse response = restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);
         } catch(ElasticsearchException e) {
             e.getDetailedMessage();
         } catch (java.io.IOException ex){
@@ -81,7 +80,7 @@ public class TradeMappingDao {
         GetRequest getRequest = new GetRequest(index, type, id);
         GetResponse getResponse = null;
         try {
-            getResponse = restHighLevelClient.get(getRequest);
+            getResponse = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
         } catch (java.io.IOException e){
             e.getLocalizedMessage();
         }
@@ -102,7 +101,7 @@ public class TradeMappingDao {
         searchSourceBuilder.query(boolQueryBuilder);
         searchRequest.source(searchSourceBuilder);
         try {
-            searchResponse = restHighLevelClient.search(searchRequest);
+            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 
         } catch (java.io.IOException e){
             e.getLocalizedMessage();
@@ -130,7 +129,7 @@ public class TradeMappingDao {
 
         searchRequest.source(searchSourceBuilder);
         try {
-            searchResponse = restHighLevelClient.search(searchRequest);
+            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 
             logger.trace("getDuplicates response: {} ", searchResponse.toString());
 
@@ -158,7 +157,7 @@ public class TradeMappingDao {
         searchRequest.source(searchSourceBuilder);
 
         try {
-            searchResponse = restHighLevelClient.search(searchRequest);
+            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             logger.debug("getDuplicates response: {} hits", searchResponse.getHits().getTotalHits());
             logger.trace("getDuplicates response: {} ", searchResponse.toString());
 
@@ -174,25 +173,22 @@ public class TradeMappingDao {
                 .fetchSource(true);    // Fetch Object after its update
         Map<String, Object> error = new HashMap<>();
         error.put("Error", "Unable to update TradeMapping");
-        logger.error("Unable to update TradeMapping with id: "+id);
         try {
             String TradeMappingJson = objectMapper.writeValueAsString(TradeMapping);
             updateRequest.doc(TradeMappingJson, XContentType.JSON);
-            UpdateResponse updateResponse = restHighLevelClient.update(updateRequest);
-            Map<String, Object> sourceAsMap = updateResponse.getGetResult().sourceAsMap();
-            return sourceAsMap;
-        }catch (JsonProcessingException e){
-            e.getMessage();
-        } catch (java.io.IOException e){
-            e.getLocalizedMessage();
+            UpdateResponse updateResponse = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
+            return updateResponse.getGetResult().sourceAsMap();
+        }catch (IOException e){
+            logger.error("Unable to update TradeMapping with id: "+id);
+            logger.error(e.getMessage());
         }
-        return error;
+       return error;
     }
 
     public void deleteTradeMappingById(String id) {
         DeleteRequest deleteRequest = new DeleteRequest(index, type, id);
         try {
-            DeleteResponse deleteResponse = restHighLevelClient.delete(deleteRequest);
+            DeleteResponse deleteResponse = restHighLevelClient.delete(deleteRequest, RequestOptions.DEFAULT);
         } catch (java.io.IOException e){
             e.getLocalizedMessage();
         }
